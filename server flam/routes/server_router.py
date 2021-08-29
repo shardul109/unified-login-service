@@ -23,7 +23,7 @@ def create_user(
             'username' : newuser.username,
             'hashed_password' : hashed_pass
         }
-        response = requests.post('127.0.0.1:5001/createuser' , params=PARAMS)
+        response = requests.post('http://127.0.0.1:5001/createuser' , json=PARAMS)
 
         if response.status_code == 201:
             return {'detail' : 'successfully created user'}
