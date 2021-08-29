@@ -5,13 +5,17 @@ from . import get_db, get_session
 from pydantic import BaseModel
 from src.db.models import User
 from loguru import logger
+from sqlalchemy.exc import NoResultFound
+from passlib.context import CryptContext
+
+pwd_cxt = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 router = APIRouter()
 
 
 class UserCreate(BaseModel):
     username: str
-    hashed_password: str
+    password: str
 
 
 @router.post('/createuser', status_code=status.HTTP_201_CREATED)
@@ -29,7 +33,7 @@ def create_user(
         else:
             new_entry = User(
                 username=newuser.username,
-                password=newuser.hashed_password
+                password=pwd_cxt.hash(newuser.password)
             )
             db.add(new_entry)
             db.commit()
@@ -42,3 +46,25 @@ def create_user(
         logger.critical(f'{e}')
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f'{e}')
+
+
+@router.get('/authenticate', status_code=status.HTTP_200_OK)
+def authenticate(
+    username: str,
+    db: Session = Depends(get_db)
+):
+    try:
+        resp = db.query(User).filter_by(username=username).all()
+
+        if len(resp) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail='user does not exist')
+
+        else:
+            return {'hashed_password': resp[0].password}
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+        logger.critical(f'{e}')
