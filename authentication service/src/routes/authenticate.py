@@ -35,6 +35,9 @@ def create_user(
             db.commit()
             logger.info('new user created successfully!')
 
+    except HTTPException as e:
+        raise e
+
     except Exception as e:
         logger.critical(f'{e}')
         raise HTTPException(
