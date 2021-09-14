@@ -1,3 +1,7 @@
+![image](https://user-images.githubusercontent.com/76529382/133304758-7e1fc8b5-accb-4502-a681-4bc74f559ad0.png)
+
+
+
 Steps to run :
 
 open the authentication service directory , create a python virtual environment . Install all the dependencies from requirements.txt using the command : ` pip3 install -r requirements.txt `
